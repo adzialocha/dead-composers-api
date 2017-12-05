@@ -12,19 +12,19 @@ Dead Composers API.
 
 1. Prepare PHP project
 
-  ```
-  git clone git@github.com:adzialocha/dead-composers-api.git
-  cd dead-composers-api
-  composer install
-  ```
+    ```
+    git clone git@github.com:adzialocha/dead-composers-api.git
+    cd dead-composers-api
+    composer install
+    ```
 
 2. Initialize MySQL database
 
-  Create a database and import `setup.sql` to create the needed table.
+    Create a database and import `setup.sql` to create the needed table.
 
 3. Configuration
 
-  Copy the configuration file via `mv config.php.example config.php` and change the settings according to your environment.
+    Copy the configuration file via `mv config.php.example config.php` and change the settings according to your environment.
 
 ## Usage
 
@@ -81,8 +81,8 @@ The following request parameters can be used to filter the results:
 
 #### Order
 
-* **order_by**: Order the results (default=public_domain_day)
-* **order**: Direction of order, possible values are: `ASC` or `DESC` (default=DESC)
+* **order_by**: Order the results (default=`public_domain_day`)
+* **order**: Direction of order, possible values are: `ASC` or `DESC` (default=`DESC`)
 
 Possible `order_by` values are: `name`, `public_domain_day`, `birth_day`, `death_day`, `nationality`, `source_url`.
 
@@ -90,14 +90,14 @@ Possible `order_by` values are: `name`, `public_domain_day`, `birth_day`, `death
 
 You can filter results by defining a timeframe via the `from` and `to` parameters:
 
-* **from**: Get public domain dates >= this day in `YYYY-MM-DD` format (default=all)
-* **to**: Get public domain dates <= this day in `YYYY-MM-DD` format (default=all)
+* **from**: Get public domain dates >= this day in `YYYY-MM-DD` format (default=*all*)
+* **to**: Get public domain dates <= this day in `YYYY-MM-DD` format (default=*all*)
 
 #### Format
 
 The results can be returned in different formats.
 
-* **format**: Response format (default=json)
+* **format**: Response format (default=`json`)
 
 Possible formats are: `json`, `xml`, `ics` (Calendar export).
 
