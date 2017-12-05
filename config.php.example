@@ -1,0 +1,12 @@
+<?php
+
+// MySQL Database
+
+const MYSQL_DB_NAME = '';
+const MYSQL_SERVER = '';
+const MYSQL_USERNAME = '';
+const MYSQL_PASSWORD = '';
+
+// API
+
+const UPDATE_KEY = '';

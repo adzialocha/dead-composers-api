@@ -1,0 +1,9 @@
+{
+    "name": "dead-composers-api",
+    "description": "Dead composers API",
+    "type": "project",
+    "require": {
+        "guzzlehttp/guzzle": "~6.0",
+        "catfan/Medoo": "^1.5"
+    }
+}
