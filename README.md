@@ -12,19 +12,19 @@ Dead Composers API.
 
 1. Prepare PHP project
 
-```
-git clone git@github.com:adzialocha/dead-composers-api.git
-cd dead-composers-api
-composer install
-```
+  ```
+  git clone git@github.com:adzialocha/dead-composers-api.git
+  cd dead-composers-api
+  composer install
+  ```
 
 2. Initialize MySQL database
 
-Create a database and import `setup.sql` to create the needed table.
+  Create a database and import `setup.sql` to create the needed table.
 
 3. Configuration
 
-Copy the configuration file via `mv config.php.example config.php` and change the settings according to your environment.
+  Copy the configuration file via `mv config.php.example config.php` and change the settings according to your environment.
 
 ## Usage
 
@@ -84,7 +84,7 @@ The following request parameters can be used to filter the results:
 * **order_by**: Order the results (default=public_domain_day)
 * **order**: Direction of order, possible values are: `ASC` or `DESC` (default=DESC)
 
-Possible `order_by` values are: `name, public_domain_day, birth_day, death_day, nationality, source_url`.
+Possible `order_by` values are: `name`, `public_domain_day`, `birth_day`, `death_day`, `nationality`, `source_url`.
 
 #### Filter
 
@@ -99,17 +99,17 @@ The results can be returned in different formats.
 
 * **format**: Response format (default=json)
 
-Possible formats are: `json, xml, ics` (Calendar export).
+Possible formats are: `json`, `xml`, `ics` (Calendar export).
 
 ### Examples
 
-* Get the first 500 composers: `api/?offset=0&limit=500`
-* Get all composers for December 17: `api/?limit=100&from=2017-12-01&to=2017-12-31`
-* Make a calendar export for all entries: `api/?format=ics&limit=10000`
-* Make a calendar export for only one day: `api/?format=ics&from=2018-05-01&to=2018-05-01`
+* The first 500 composers in XML format: `api/?offset=0&limit=500&format=xml`
+* All composers for the month december 2017: `api/?limit=100&from=2017-12-01&to=2017-12-31`
+* Calendar export for all entries: `api/?format=ics&limit=10000`
+* Calendar export for only one day: `api/?format=ics&from=2018-05-01&to=2018-05-01`
 
 ### Database update
 
-To update the database with current data from Wikidata use the following link: `api/?update=<key>`. Use the secret key you entered in the `config.php` file to start the import process.
+To update the database with current data from Wikidata use the following link: `api/?update=<key>`. Use the secret key you entered in the `config.php` file to start the import process. This might take some seconds.
 
 It is recommended to use this URL to issue an Cron job, calling that link every day or week or similar.
