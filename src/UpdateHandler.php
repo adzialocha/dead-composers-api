@@ -35,8 +35,9 @@ class UpdateHandler {
                 $occupations
             );
 
-            $response = [];
-            $sources= [];
+            $result = [];
+            $result_source_urls = [];
+            $result_invalid = [];
 
             foreach ($dead_people as $item) {
                 $name = $item->itemLabel->value;
@@ -46,6 +47,10 @@ class UpdateHandler {
 
                 // Death date has to be given
                 if (!$this->validate_date($death_day)) {
+                    array_push($result_invalid, [
+                        'reason' => 'invalid_death_date',
+                        'source_url' => $source_url
+                    ]);
                     continue;
                 }
 
@@ -69,6 +74,10 @@ class UpdateHandler {
 
                 // Nationality has to be given
                 if (!$nationality) {
+                    array_push($result_invalid, [
+                        'reason' => 'invalid_nationality',
+                        'source_url' => $source_url
+                    ]);
                     continue;
                 }
 
@@ -78,13 +87,17 @@ class UpdateHandler {
                 );
 
                 // Is duplicate?
-                if (in_array($source_url, $sources)) {
+                if (in_array($source_url, $result_source_urls)) {
+                    array_push($result_invalid, [
+                        'reason' => 'duplicate',
+                        'source_url' => $source_url
+                    ]);
                     continue;
                 } else {
-                    array_push($sources, $source_url);
+                    array_push($result_source_urls, $source_url);
                 }
 
-                array_push($response, [
+                array_push($result, [
                     'name' => $name,
                     'nationality' => $nationality,
                     'death_day' => $death_day,
@@ -94,7 +107,12 @@ class UpdateHandler {
                 ]);
             }
 
-            return $response;
+            return [
+                'entries' => $result,
+                'source_urls' => $result_source_urls,
+                'invalid_entries' => $result_invalid,
+                'invalid_entries_count' => count($dead_people) - count($result)
+            ];
         } catch (Exception $e) {
             echo "An error occurred: " . $e->getMessage();
         }
@@ -106,16 +124,30 @@ class UpdateHandler {
             $occupations
         );
 
-        $data = array_unique($data, SORT_REGULAR);
+        // Don't add entries which already exist in database
+        $duplicate_entries = $db->select($table_name, 'source_url', [
+            'OR' => [
+                'source_url' => $data['source_urls'],
+            ]
+        ]);
 
-        $db->query('TRUNCATE TABLE "' . $table_name. '";');
+        $new_entries = array_filter(
+            $data['entries'], function($entry) use ($duplicate_entries) {
+                return !in_array($entry['source_url'], $duplicate_entries);
+            }
+        );
 
-        if (count($data) > 0) {
-            $db->insert($table_name, $data);
+        // Add new entries to database
+        if (count($new_entries) > 0) {
+            $db->insert($table_name, $new_entries);
         }
 
         return [
-            'total_count' => count($data)
+            'duplicate_entries_count' => count($duplicate_entries),
+            'invalid_entries_count' => $data['invalid_entries_count'],
+            'invalid_entries' => $data['invalid_entries'],
+            'new_entries_count' => count($new_entries),
+            'new_entries' => $new_entries
         ];
     }
 }
