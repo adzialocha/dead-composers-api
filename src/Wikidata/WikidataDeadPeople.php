@@ -76,6 +76,7 @@ class WikidataDeadPeople {
             );
 
             $response = $this->api->fetch($query);
+
             return $this->filter_results($response);
         } catch (Exception $e) {
             throw new Exception('An API error occurred.');
