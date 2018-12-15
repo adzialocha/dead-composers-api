@@ -5,11 +5,13 @@ namespace DeadComposers;
 use DateTime;
 
 use DeadComposers\Utils\CountryCodes;
+use DeadComposers\Utils\LicenseYears;
 use DeadComposers\Wikidata\WikidataDeadPeople;
 
 class UpdateHandler {
     function __construct() {
         $this->country_codes = new CountryCodes();
+        $this->licence_years = new LicenseYears();
         $this->wikidata = new WikidataDeadPeople();
     }
 
@@ -18,11 +20,15 @@ class UpdateHandler {
         return $d && $d->format($format) == $date;
     }
 
-    private function get_public_domain_day($death_day, $nationality) {
+    private function get_public_domain_years($nationality) {
+        return $this->licence_years->get_year($nationality);
+    }
+
+    private function get_public_domain_day($death_day, $years) {
         $date = new DateTime($death_day);
 
         $date->add(
-            date_interval_create_from_date_string('70 years')
+            date_interval_create_from_date_string("$years years")
         );
 
         return $date->format('Y-m-d');
@@ -81,9 +87,20 @@ class UpdateHandler {
                     continue;
                 }
 
+                $public_domain_years = $this->get_public_domain_years($nationality);
+
+                if (!$public_domain_years) {
+                    array_push($result_invalid, [
+                        'reason' => 'invalid_public_domain_day',
+                        'source_url' => $source_url
+                    ]);
+                    continue;
+                }
+
+
                 $public_domain_day = $this->get_public_domain_day(
                     $death_day,
-                    $nationality
+                    $public_domain_years
                 );
 
                 // Is duplicate?
@@ -103,6 +120,7 @@ class UpdateHandler {
                     'death_day' => $death_day,
                     'birth_day' => $birth_day,
                     'public_domain_day' => $public_domain_day,
+                    'public_domain_years' => $public_domain_years,
                     'source_url' => $source_url
                 ]);
             }
@@ -119,10 +137,28 @@ class UpdateHandler {
     }
 
     function update_database($db, $table_name, $target_countries, $occupations) {
-        $data = $this->get_dead_composers(
-            $target_countries,
-            $occupations
-        );
+        $queue = array_chunk($target_countries, 10);
+
+        $data = [
+            'entries' => [],
+            'source_urls' => [],
+            'invalid_entries' => [],
+            'invalid_entries_count' => 0,
+        ];
+
+        foreach ($queue as $target_countries_partial) {
+            $data_partial = $this->get_dead_composers(
+                $target_countries_partial,
+                $occupations
+            );
+
+            $data = [
+                'entries' => array_merge($data['entries'], $data_partial['entries']),
+                'source_urls' => array_merge($data['source_urls'], $data_partial['source_urls']),
+                'invalid_entries' => array_merge($data['invalid_entries'], $data_partial['invalid_entries']),
+                'invalid_entries_count' => $data['invalid_entries_count'] + $data_partial['invalid_entries_count'],
+            ];
+        }
 
         // Don't add entries which already exist in database
         $duplicate_entries = $db->select($table_name, 'source_url', [

@@ -43,9 +43,10 @@ The API is always called via `<your_base_path>/api/`. The results are always for
   "status": "ok",
   "data": [
     {
-      "id": "5486",
+      "id": 5486,
       "name": "Roland Verlooven",
       "public_domain_day": "2087-11-01",
+      "public_domain_years": 70,
       "birth_day": "1938-03-02",
       "death_day": "2017-11-01",
       "nationality": "be",
@@ -64,7 +65,8 @@ The composer object holds the following values:
 
 * **id**: Unique ID in database
 * **name**: Firstname and lastname of the composer
-* **public_domain_day**: The day in `YYYY-MM-DD` format when the composers work enters public domain
+* **public_domain_day**: the day in `yyyy-mm-dd` format when the composers work enters public domain
+* **public_domain_years**: the number of years the composer enters public domain since his day of death
 * **birth_day**: Birth day of composer in `YYYY-MM-DD` format
 * **death_day**: Day of death of composer in `YYYY-MM-DD` format
 * **nationality**: Country code in ISO 3166 format
@@ -84,7 +86,7 @@ The following request parameters can be used to filter the results:
 * **order_by**: Order the results (default=`public_domain_day`)
 * **order**: Direction of order, possible values are: `ASC` or `DESC` (default=`DESC`)
 
-Possible `order_by` values are: `name`, `public_domain_day`, `birth_day`, `death_day`, `nationality`, `source_url`.
+Possible `order_by` values are: `name`, `public_domain_day`, `public_domain_years`, `birth_day`, `death_day`, `nationality`, `source_url`.
 
 #### Filter
 

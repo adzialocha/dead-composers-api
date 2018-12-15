@@ -23,9 +23,10 @@ class API {
     const TABLE_NAME = 'dead_composers';
 
     private $valid_columns = [
-        'id',
+        'id [Int]',
         'name',
         'public_domain_day',
+        'public_domain_years [Int]',
         'birth_day',
         'death_day',
         'nationality',
