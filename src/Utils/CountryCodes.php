@@ -250,13 +250,17 @@ class CountryCodes {
     );
 
     function get_country($country_code) {
-      return $country_codes[$country_code];
+        if (!array_key_exists($country_code, $this->country_codes)) {
+            return false;
+        }
+
+        return $this->country_codes[$country_code];
     }
 
     function get_country_code($country_name) {
-      return array_search(
-        strtolower($country_name),
-        $this->country_codes
-      );
+        return array_search(
+            strtolower($country_name),
+            $this->country_codes
+        );
     }
 }
