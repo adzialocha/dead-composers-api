@@ -12,7 +12,7 @@ use DeadComposers\Utils\ICS;
 class API {
     const DEFAULT_FORMAT = 'json';
     const DEFAULT_LIMIT = 10;
-    const DEFAULT_ORDER = 'DESC';
+    const DEFAULT_ORDER = 'ASC';
     const DEFAULT_ORDER_BY = 'public_domain_day';
     const MAX_LIMIT = 10000;
 
@@ -124,7 +124,7 @@ class API {
         }
 
         if (array_key_exists('update', $params)) {
-            return $this->respond_update($params['update'], $format);
+            return $this->respond_update($params, $params['update'], $format);
         } else {
             return $this->respond_list($params, $format);
         }
@@ -161,15 +161,22 @@ class API {
         return $this->respond(200, $data, $format);
     }
 
-    function respond_update($key, $format) {
+    function respond_update($params, $key, $format) {
         if ($key !== $this->update_key) {
             return $this->respond_error(401, 'Unauthorized', $format);
+        }
+
+        $batch_index = 0;
+
+        if (array_key_exists('batch', $params) && is_numeric($params['batch'])) {
+            $batch_index = intval($params['batch']);
         }
 
         try {
             $results = $this->update_handler->update_database(
                 $this->db,
                 self::TABLE_NAME,
+                $batch_index,
                 $this->target_countries,
                 $this->occupations
             );
@@ -235,8 +242,11 @@ class API {
             'order' => $order
         ];
 
-        $from_date = null;
+        $from_date = new DateTime();
         $to_date = null;
+
+        $sanitized_params['from'] = $from_date->format('Y-m-d');
+        $query['public_domain_day[>=]'] = $from_date->format('Y-m-d');
 
         if (
             array_key_exists('from', $params) &&
@@ -254,6 +264,11 @@ class API {
             $to_date = new DateTime($params['to']);
             $query['public_domain_day[<=]'] = $to_date->format('Y-m-d');
             $sanitized_params['to'] = $to_date->format('Y-m-d');
+        }
+
+        if (array_key_exists('id', $params) && is_numeric($params['id'])) {
+            $query['id[=]'] = intval($params['id']);
+            $sanitized_params['id'] = intval($params['id']);
         }
 
         if (isset($from_date) && isset($to_date) && $from_date > $to_date) {

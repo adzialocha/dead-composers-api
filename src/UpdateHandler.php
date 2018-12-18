@@ -9,6 +9,8 @@ use DeadComposers\Utils\LicenseYears;
 use DeadComposers\Wikidata\WikidataDeadPeople;
 
 class UpdateHandler {
+    const BATCH_COUNT = 5;
+
     function __construct() {
         $this->country_codes = new CountryCodes();
         $this->licence_years = new LicenseYears();
@@ -42,8 +44,8 @@ class UpdateHandler {
             );
 
             $result = [];
-            $result_source_urls = [];
             $result_invalid = [];
+            $result_source_urls = [];
 
             foreach ($dead_people as $item) {
                 $name = $item->itemLabel->value;
@@ -87,6 +89,7 @@ class UpdateHandler {
                     continue;
                 }
 
+                // Calculate public domain day based on nationality
                 $public_domain_years = $this->get_public_domain_years($nationality);
 
                 if (!$public_domain_years) {
@@ -96,7 +99,6 @@ class UpdateHandler {
                     ]);
                     continue;
                 }
-
 
                 $public_domain_day = $this->get_public_domain_day(
                     $death_day,
@@ -136,29 +138,26 @@ class UpdateHandler {
         }
     }
 
-    function update_database($db, $table_name, $target_countries, $occupations) {
-        $queue = array_chunk($target_countries, 10);
+    function update_database($db, $table_name, $batch_index, $target_countries, $occupations) {
+        // Split up requests in smaller chunks
+        $total = count($target_countries);
+        $batch_size = $total / self::BATCH_COUNT;
 
-        $data = [
-            'entries' => [],
-            'source_urls' => [],
-            'invalid_entries' => [],
-            'invalid_entries_count' => 0,
-        ];
-
-        foreach ($queue as $target_countries_partial) {
-            $data_partial = $this->get_dead_composers(
-                $target_countries_partial,
-                $occupations
-            );
-
-            $data = [
-                'entries' => array_merge($data['entries'], $data_partial['entries']),
-                'source_urls' => array_merge($data['source_urls'], $data_partial['source_urls']),
-                'invalid_entries' => array_merge($data['invalid_entries'], $data_partial['invalid_entries']),
-                'invalid_entries_count' => $data['invalid_entries_count'] + $data_partial['invalid_entries_count'],
-            ];
+        if ($batch_index > self::BATCH_COUNT - 1) {
+            $batch_index = self::BATCH_COUNT - 1;
         }
+
+        $target_countries_partial = array_splice(
+            $target_countries,
+            $batch_index * $batch_size,
+            $batch_size
+        );
+
+        // Get dead composers
+        $data = $this->get_dead_composers(
+            $target_countries_partial,
+            $occupations
+        );
 
         // Don't add entries which already exist in database
         $duplicate_entries = $db->select($table_name, 'source_url', [
@@ -179,6 +178,7 @@ class UpdateHandler {
         }
 
         return [
+            'batch_index' => $batch_index,
             'duplicate_entries_count' => count($duplicate_entries),
             'invalid_entries_count' => $data['invalid_entries_count'],
             'invalid_entries' => $data['invalid_entries'],
