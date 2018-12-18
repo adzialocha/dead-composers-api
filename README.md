@@ -4,9 +4,9 @@ Dead Composers API.
 
 ## Requirements
 
-* Apache Server
-* MySQL Database
-* PHP7
+* Apache / nginx etc. Server
+* SQL Database
+* PHP >= 7.0
 
 ## Setup
 
@@ -84,15 +84,16 @@ The following request parameters can be used to filter the results:
 #### Order
 
 * **order_by**: Order the results (default=`public_domain_day`)
-* **order**: Direction of order, possible values are: `ASC` or `DESC` (default=`DESC`)
+* **order**: Direction of order, possible values are: `ASC` or `DESC` (default=`ASC`)
 
 Possible `order_by` values are: `name`, `public_domain_day`, `public_domain_years`, `birth_day`, `death_day`, `nationality`, `source_url`.
 
 #### Filter
 
-You can filter results by defining a timeframe via the `from` and `to` parameters:
+You can filter results by defining a timeframe via the `id`, `from` and `to` parameters:
 
-* **from**: Get public domain dates >= this day in `YYYY-MM-DD` format (default=*all*)
+* **id**: Get a single record identified via its `id` (default=*unset*)
+* **from**: Get public domain dates >= this day in `YYYY-MM-DD` format (default=*current date*)
 * **to**: Get public domain dates <= this day in `YYYY-MM-DD` format (default=*all*)
 
 #### Format
@@ -107,11 +108,11 @@ Possible formats are: `json`, `xml`, `ics` (Calendar export).
 
 * The first 500 composers in XML format: `api/?offset=0&limit=500&format=xml`
 * All composers for the month december 2017: `api/?limit=100&from=2017-12-01&to=2017-12-31`
-* Calendar export for all entries: `api/?format=ics&limit=10000`
+* Calendar export for getting entries starting from current day: `api/?format=ics&limit=1000`
 * Calendar export for only one day: `api/?format=ics&from=2018-05-01&to=2018-05-01`
 
 ### Database update
 
-To update the database with current data from Wikidata use the following link: `api/?update=<key>`. Use the secret key you entered in the `config.php` file to start the import process. This might take some seconds.
+To update the database with current data from Wikidata use the following link: `api/?update=<key>&batch=<index>`. Use the secret key you entered in the `config.php` file to start the import process. This might take some seconds. The update process is split up in 5 batches to prevent timeouts and memory problems, use the `batch` param to decide which batch should be processed (starting from 0).
 
 It is recommended to use this URL to issue an Cron job, calling that link every day or week or similar.
