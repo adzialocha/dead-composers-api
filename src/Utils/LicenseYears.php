@@ -12,6 +12,7 @@ class LicenseYears {
         'ag' => 50, // antigua and barbuda
         'ar' => 70, // argentina
         'au' => 70, // australia
+        'am' => 70, // armenia
         'at' => 70, // austria
         'az' => 50, // azerbaijan
         'bs' => 70, // bahamas
@@ -76,6 +77,7 @@ class LicenseYears {
         'gy' => 50, // guyana
         'ht' => 60, // haiti
         'hn' => 50, // honduras
+        'hk' => 50, // hong kong
         'hu' => 70, // hungary
         'is' => 70, // iceland
         'in' => 70, // india

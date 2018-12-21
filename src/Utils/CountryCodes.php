@@ -10,6 +10,7 @@ class CountryCodes {
         'dz' => 'algeria',
         'as' => 'american samoa',
         'ad' => 'andorra',
+        'am' => 'armenia',
         'ao' => 'angola',
         'ai' => 'anguilla',
         'aq' => 'antarctica',
@@ -46,7 +47,7 @@ class CountryCodes {
         'cf' => 'central african republic',
         'td' => 'chad',
         'cl' => 'chile',
-        'cn' => 'china',
+        'cn' => ['china', "people's republic of china"],
         'cx' => 'christmas island',
         'cc' => 'cocos (keeling) islands',
         'co' => 'colombia',
@@ -55,9 +56,9 @@ class CountryCodes {
         'cd' => 'zaire',
         'ck' => 'cook islands',
         'cr' => 'costa rica',
-        'ci' => 'côte d\'ivoire',
         'hr' => 'croatia',
         'cu' => 'cuba',
+        'ci' => ['ivory coast', "republic of côte d'ivoire", "côte d'ivoire"],
         'cy' => 'cyprus',
         'cz' => 'czech republic',
         'dk' => 'denmark',
@@ -104,7 +105,7 @@ class CountryCodes {
         'is' => 'iceland',
         'in' => 'india',
         'id' => 'indonesia',
-        'ir' => 'iran, islamic republic of',
+        'ir' => ['iran, islamic republic of', 'iran'],
         'iq' => 'iraq',
         'ie' => 'ireland',
         'im' => 'isle of man',
@@ -117,8 +118,8 @@ class CountryCodes {
         'kz' => 'kazakhstan',
         'ke' => 'kenya',
         'ki' => 'kiribati',
-        'kp' => 'korea, democratic people\'s republic of',
-        'kr' => 'korea, republic of',
+        'kp' => ['korea, democratic people\'s republic of', 'north corea'],
+        'kr' => ['korea, republic of', 'south korea'],
         'kw' => 'kuwait',
         'kg' => 'kyrgyzstan',
         'la' => 'lao people\'s democratic republic',
@@ -131,7 +132,7 @@ class CountryCodes {
         'lt' => 'lithuania',
         'lu' => 'luxembourg',
         'mo' => 'macao',
-        'mk' => 'macedonia, the former yugoslav republic of',
+        'mk' => ['macedonia, the former yugoslav republic of', 'macedonia'],
         'mg' => 'madagascar',
         'mw' => 'malawi',
         'my' => 'malaysia',
@@ -145,7 +146,7 @@ class CountryCodes {
         'yt' => 'mayotte',
         'mx' => 'mexico',
         'fm' => 'micronesia, federated states of',
-        'md' => 'moldova, republic of',
+        'md' => ['moldova, republic of', 'moldova'],
         'mc' => 'monaco',
         'mn' => 'mongolia',
         'me' => 'montenegro',
@@ -183,7 +184,7 @@ class CountryCodes {
         'qa' => 'qatar',
         're' => 'réunion',
         'ro' => 'romania',
-        'ru' => 'russian federation',
+        'ru' => ['russia', 'russian federation', 'soviet union'],
         'rw' => 'rwanda',
         'sh' => 'saint helena',
         'kn' => 'saint kitts and nevis',
@@ -213,10 +214,10 @@ class CountryCodes {
         'sz' => 'swaziland',
         'se' => 'sweden',
         'ch' => 'switzerland',
-        'sy' => 'syrian arab republic',
-        'tw' => 'taiwan, province of china',
+        'sy' => ['syrian arab republic', 'syria'],
+        'tw' => ['taiwan, province of china', 'taiwan'],
         'tj' => 'tajikistan',
-        'tz' => 'tanzania, united republic of',
+        'tz' => ['tanzania, united republic of', 'tanzania'],
         'th' => 'thailand',
         'tl' => 'timor-leste',
         'tg' => 'togo',
@@ -232,14 +233,13 @@ class CountryCodes {
         'ua' => 'ukraine',
         'ae' => 'united arab emirates',
         'gb' => 'united kingdom',
-        'us' => 'united states',
-        'us' => 'united states of america',
+        'us' => ['united states', 'united states of america'],
         'um' => 'united states minor outlying islands',
         'uy' => 'uruguay',
         'uz' => 'uzbekistan',
         'vu' => 'vanuatu',
         've' => 'venezuela',
-        'vn' => 'viet nam',
+        'vn' => ['viet nam', 'vietnam'],
         'vg' => 'virgin islands, british',
         'vi' => 'virgin islands, u.s.',
         'wf' => 'wallis and futuna',
@@ -254,13 +254,31 @@ class CountryCodes {
             return false;
         }
 
-        return $this->country_codes[$country_code];
+        $countries = $this->country_codes[$country_code];
+
+        if (is_array($countries)) {
+            return $countries[0];
+        }
+
+        return $countries;
     }
 
     function get_country_code($country_name) {
-        return array_search(
-            strtolower($country_name),
-            $this->country_codes
-        );
+        $search_key = strtolower($country_name);
+        $found = false;
+
+        foreach ($this->country_codes as $county_code => $countries) {
+            if (is_array($countries)) {
+                foreach ($countries as $country) {
+                    if ($search_key === $country) {
+                        $found = $county_code;
+                    }
+                }
+            } else if ($search_key === $countries) {
+                $found = $county_code;
+            }
+        }
+
+        return $found;
     }
 }
