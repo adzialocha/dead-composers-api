@@ -9,7 +9,7 @@ use DeadComposers\Utils\LicenseYears;
 use DeadComposers\Wikidata\WikidataDeadPeople;
 
 class UpdateHandler {
-    const BATCH_COUNT = 5;
+    const BATCH_COUNT = 28;
 
     function __construct() {
         $this->country_codes = new CountryCodes();
