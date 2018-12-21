@@ -22,6 +22,10 @@ class UpdateHandler {
         return $d && $d->format($format) == $date;
     }
 
+    private function get_year($date) {
+        return intval(explode('-', $date)[0]);
+    }
+
     private function get_public_domain_years($nationality) {
         return $this->licence_years->get_year($nationality);
     }
@@ -104,6 +108,18 @@ class UpdateHandler {
                     $death_day,
                     $public_domain_years
                 );
+
+                // Ignore people who died before 1948 in France
+                if (
+                    $nationality === 'fr' &&
+                    $this->get_year($death_day) < 1948
+                ) {
+                    array_push($result_invalid, [
+                        'reason' => 'france_death_before_1948',
+                        'source_url' => $source_url
+                    ]);
+                    continue;
+                }
 
                 // Is duplicate?
                 if (in_array($source_url, $result_source_urls)) {

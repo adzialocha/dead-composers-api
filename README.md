@@ -113,6 +113,6 @@ Possible formats are: `json`, `xml`, `ics` (Calendar export).
 
 ### Database update
 
-To update the database with current data from Wikidata use the following link: `api/?update=<key>&batch=<index>`. Use the secret key you entered in the `config.php` file to start the import process. This might take some seconds. The update process is split up in 5 batches to prevent timeouts and memory problems, use the `batch` param to decide which batch should be processed (starting from 0).
+To update the database with current data from Wikidata use the following link: `api/?update=<key>&batch=<index>`. Use the secret key you entered in the `config.php` file to start the import process. This might take some seconds. The update process is split up in batches to prevent timeouts and memory problems, use the `batch` param to decide which batch should be processed (starting from 0).
 
 It is recommended to use this URL to issue an Cron job, calling that link every day or week or similar.
