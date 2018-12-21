@@ -49,7 +49,7 @@ class UpdateHandler {
 
             foreach ($dead_people as $item) {
                 $name = $item->itemLabel->value;
-                $death_day = $item->death->value;
+                $death_day = $item->date_of_death->value;
                 $birth_day = $item->date_of_birth->value;
                 $source_url = $item->item->value;
 

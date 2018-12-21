@@ -9,7 +9,7 @@ use DeadComposers\Wikidata\WikidataAPI;
 class WikidataDeadPeople {
     private $api;
 
-    const SERVICE_LANGUAGE = 'en,fr,de,ru,el,es,fa';
+    const SERVICE_LANGUAGE = '[AUTO_LANGUAGE],en,fr,de,ru,el,es,fa';
 
     function __construct() {
         $this->api = new WikidataAPI();
@@ -26,7 +26,7 @@ class WikidataDeadPeople {
           '?item',
           '?itemLabel',
           '(GROUP_CONCAT(DISTINCT ?countryLabel; SEPARATOR="|") AS ?countries)',
-          '?death',
+          '?date_of_death',
           '?date_of_birth'
         ];
 
@@ -38,7 +38,7 @@ class WikidataDeadPeople {
         $items = [
           '?item wdt:P31 wd:Q5.',
           '?item wdt:P569 ?date_of_birth.',
-          '?item wdt:P570 ?death.',
+          '{ SELECT ?item ?date_of_death { ?date_of_death_node wikibase:timePrecision "11"^^xsd:integer . ?date_of_death_node wikibase:timeValue ?date_of_death . ?item p:P570/psv:P570 ?date_of_death_node . } }',
           '?item wdt:P27 ?target_country.',
           '?item wdt:P27 ?country.',
           '?item wdt:P106 ?occupation.'
@@ -57,7 +57,7 @@ class WikidataDeadPeople {
           . implode(' ', $items)
           . 'SERVICE wikibase:label { ' . implode(' ', $service) . ' } '
           . '} '
-          . 'GROUP BY ?item ?itemLabel ?death ?date_of_birth';
+          . 'GROUP BY ?item ?itemLabel ?date_of_death ?date_of_birth';
 
         return $query;
     }
